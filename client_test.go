@@ -158,6 +158,33 @@ func TestFindId(t *testing.T) {
 	t.Logf("%s", jsonData)
 }
 
+type TestIdGenterStruct struct {
+	ID    string `bson:"_id,omitempty"`
+	Maxid int32  `bson:"max_id"`
+}
+
+func TestFindAndModify(t *testing.T) {
+	finder := bson.M{"_id": "app"}
+	updater := bson.M{"$inc": bson.M{"max_id": 1}}
+	client.Collection("id_genter")
+	result, err := client.FindAndModify(finder, updater)
+	if err != nil {
+		t.Error(err)
+	}
+
+	doc := TestIdGenterStruct{}
+	bsonBytes, _ := bson.Marshal(result)
+	err = bson.Unmarshal(bsonBytes, &doc)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(doc)
+
+	jsonData, _ := json.Marshal(result)
+	t.Logf("%s", jsonData)
+	client.Collection("mycoll")
+}
+
 func TestRemove(t *testing.T) {
 	selector := bson.M{"_id": 4}
 	err := client.Remove(selector)

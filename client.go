@@ -176,14 +176,29 @@ func (this *Client) QueryCount(query *Query) (n int, err error) {
 	return n, err
 }
 
-func (this *Client) Find(query interface{}) *mgo.Query {
+func (this *Client) Find(finder interface{}) *mgo.Query {
 	this.connectCheck()
-	return this.coll.Find(query)
+	return this.coll.Find(finder)
 }
 
 func (this *Client) FindId(id interface{}) *mgo.Query {
 	this.connectCheck()
 	return this.coll.FindId(id)
+}
+
+func (this *Client) FindAndModify(finder interface{}, updater interface{}) (result bson.M, err error) {
+	change := mgo.Change{
+		Update:    updater,
+		Upsert:    true,
+		ReturnNew: true,
+	}
+
+	result = bson.M{}
+	_, err = this.coll.Find(finder).Apply(change, result)
+	if err != nil {
+		this.log("FindAndModify Fail, Error:", err)
+	}
+	return result, err
 }
 
 func (this *Client) Indexes() (indexes []mgo.Index, err error) {
