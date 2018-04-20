@@ -22,9 +22,8 @@ func newTestClient() (*Client, error) {
 func testPool(pool *Pool, t *testing.T) {
 	client, _ := pool.Get()
 
-	client = getTestCollection(client)
 	query := NewQuery()
-	result, err := client.Query(query)
+	result, err := client.Query(MONGO_TEST_COLLECTION, query)
 	if err != nil {
 		t.Error(err)
 	}
