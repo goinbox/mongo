@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"encoding/json"
-	"log"
 	"time"
 
 	"github.com/goinbox/golog"
@@ -48,9 +47,7 @@ func TestInsert(t *testing.T) {
 	docs := make([]interface{}, total)
 	for i := 0; i < total; i++ {
 		docs[i] = bson.M{"_id": i, "a": 3, "b": 4}
-		log.Printf("%T %v", docs[i], docs[i])
 	}
-	log.Printf("%T %v", docs, docs)
 	err = client.Insert(MONGO_TEST_COLLECTION, docs...)
 	if err != nil {
 		t.Error(err)
