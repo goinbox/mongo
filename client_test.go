@@ -26,6 +26,7 @@ func getTestClient() *Client {
 	logger, _ := golog.NewSimpleLogger(w, golog.LEVEL_INFO, golog.NewSimpleFormater())
 
 	config := NewConfig("localhost", "myport", "myuser", "mypass", "mydb")
+
 	config.LogLevel = golog.LEVEL_DEBUG
 
 	return NewClient(config, logger)
@@ -36,6 +37,30 @@ func init() {
 	//client.Free()
 }
 
+func TestRemove(t *testing.T) {
+	selector := bson.M{"_id": 4}
+	err := client.Remove(MONGO_TEST_COLLECTION, selector)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRemoveId(t *testing.T) {
+	id := 1
+	err := client.RemoveId(MONGO_TEST_COLLECTION, id)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestRemoveAll(t *testing.T) {
+	selector := bson.M{"_id": bson.M{"$gte": 0}}
+	err := client.RemoveAll(MONGO_TEST_COLLECTION, selector)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestInsert(t *testing.T) {
 	var err error
 	doc := bson.M{"_id": 11, "a": 1, "b": 2}
@@ -43,7 +68,7 @@ func TestInsert(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	total := 3
+	total := 5
 	docs := make([]interface{}, total)
 	for i := 0; i < total; i++ {
 		docs[i] = bson.M{"_id": i, "a": 3, "b": 4}
@@ -104,8 +129,9 @@ func TestUpsert(t *testing.T) {
 }
 
 func TestQuery(t *testing.T) {
-	query := NewQuery().SetMaxTime(1 * time.Second)
-	result, err := client.Query(MONGO_TEST_COLLECTION, query)
+	result := []bson.M{}
+	query := NewQuery().Find(bson.M{"_id": bson.M{"$gt": 0}}).Select(bson.M{"edit_time": 0}).Skip(1).SetMaxTime(1 * time.Second)
+	err := client.Query(MONGO_TEST_COLLECTION, query).All(&result)
 	if err != nil {
 		t.Error(err)
 	}
@@ -114,17 +140,9 @@ func TestQuery(t *testing.T) {
 }
 
 func TestQueryOne(t *testing.T) {
-	query := NewQuery().Query(bson.M{"_id": bson.M{"$gt": 0}}).Select(bson.M{"_id": 0}).Skip(1)
-	result, err := client.QueryOne(MONGO_TEST_COLLECTION, query)
-	if err != nil {
-		t.Error(err)
-	}
-	jsonData, _ := json.Marshal(result)
-	t.Logf("%s", jsonData)
-}
-
-func TestQueryId(t *testing.T) {
-	result, err := client.QueryId(MONGO_TEST_COLLECTION, 4)
+	result := bson.M{}
+	query := NewQuery().Find(bson.M{"_id": bson.M{"$gt": 0}}).Sort("-_id").Select(bson.M{"edit_time": 0}).Skip(0).SetMaxTime(1 * time.Second)
+	err := client.Query(MONGO_TEST_COLLECTION, query).One(&result)
 	if err != nil {
 		t.Error(err)
 	}
@@ -134,7 +152,7 @@ func TestQueryId(t *testing.T) {
 
 func TestQueryCount(t *testing.T) {
 	query := NewQuery()
-	result, err := client.QueryCount(MONGO_TEST_COLLECTION, query)
+	result, err := client.Query(MONGO_TEST_COLLECTION, query).Count()
 	if err != nil {
 		t.Error(err)
 	}
@@ -149,6 +167,13 @@ func TestFind(t *testing.T) {
 		t.Error(err)
 	}
 	jsonData, _ := json.Marshal(result)
+	t.Logf("%s", jsonData)
+
+	err = client.Find(MONGO_TEST_COLLECTION, bson.M{"_id": bson.M{"$in": []int{4, 11}}}).All(&result)
+	if err != nil {
+		t.Error(err)
+	}
+	jsonData, _ = json.Marshal(result)
 	t.Logf("%s", jsonData)
 }
 
@@ -177,32 +202,9 @@ func TestFindAndModify(t *testing.T) {
 	}
 	t.Log(doc)
 
-	jsonData, _ := json.Marshal(result)
-	t.Logf("%s", jsonData)
-	json.Unmarshal(jsonData, doc)
+	err = client.ConvertJsonToStruct(result, doc)
+	if err != nil {
+		t.Error(err)
+	}
 	t.Log(doc)
-}
-
-func TestRemove(t *testing.T) {
-	selector := bson.M{"_id": 4}
-	err := client.Remove(MONGO_TEST_COLLECTION, selector)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestRemoveAll(t *testing.T) {
-	selector := bson.M{"_id": bson.M{"$gt": 0}}
-	err := client.RemoveAll(MONGO_TEST_COLLECTION, selector)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestRemoveId(t *testing.T) {
-	id := 1
-	err := client.RemoveId(MONGO_TEST_COLLECTION, id)
-	if err != nil {
-		t.Error(err)
-	}
 }

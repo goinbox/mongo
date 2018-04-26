@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestPool(t *testing.T) {
@@ -23,7 +25,8 @@ func testPool(pool *Pool, t *testing.T) {
 	client, _ := pool.Get()
 
 	query := NewQuery()
-	result, err := client.Query(MONGO_TEST_COLLECTION, query)
+	result := []bson.M{}
+	err := client.Query(MONGO_TEST_COLLECTION, query).All(&result)
 	if err != nil {
 		t.Error(err)
 	}

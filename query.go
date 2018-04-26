@@ -3,7 +3,7 @@ package mongo
 import "time"
 
 type Query struct {
-	query      interface{}
+	finder     interface{}
 	selector   interface{}
 	sort       []string
 	limit      int
@@ -11,8 +11,8 @@ type Query struct {
 	setMaxTime time.Duration
 }
 
-func (this *Query) Query(query interface{}) *Query {
-	this.query = query
+func (this *Query) Find(finder interface{}) *Query {
+	this.finder = finder
 	return this
 }
 

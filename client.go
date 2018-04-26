@@ -76,6 +76,7 @@ func (c *Client) Free() {
 
 func (c *Client) Connect() error {
 	url := "mongodb://" + c.config.User + ":" + c.config.Pass + "@" + c.config.Host + ":" + c.config.Port
+
 	session, err := mgo.Dial(url)
 	if err != nil {
 		return err
@@ -120,9 +121,12 @@ func (c *Client) Count(coll string) (n int, err error) {
 }
 
 func (c *Client) BuildQuery(coll string, query *Query) *mgo.Query {
-	q := c.Collection(coll).Find(query.query)
+	q := c.Collection(coll).Find(query.finder)
 	if query.selector != nil {
 		q = q.Select(query.selector)
+	}
+	if query.sort != nil {
+		q = q.Sort(query.sort...)
 	}
 	if query.limit != 0 {
 		q = q.Limit(query.limit)
@@ -133,44 +137,11 @@ func (c *Client) BuildQuery(coll string, query *Query) *mgo.Query {
 	if query.setMaxTime != 0 {
 		q = q.SetMaxTime(query.setMaxTime)
 	}
-
 	return q
 }
 
-func (c *Client) Query(coll string, query *Query) (result []bson.M, err error) {
-	err = c.BuildQuery(coll, query).All(&result)
-	if err != nil {
-		c.log("Query Fail, Query:", query,
-			", Error:", err)
-	}
-	return result, err
-}
-
-func (c *Client) QueryOne(coll string, query *Query) (result bson.M, err error) {
-	err = c.BuildQuery(coll, query).One(&result)
-	if err != nil {
-		c.log("QueryOne Fail, Query:", query,
-			", Error:", err)
-	}
-	return result, err
-}
-
-func (c *Client) QueryId(coll string, id interface{}) (result bson.M, err error) {
-	err = c.Collection(coll).FindId(id).One(&result)
-	if err != nil {
-		c.log("QueryId Fail, Id:", id,
-			", Error:", err)
-	}
-	return result, err
-}
-
-func (c *Client) QueryCount(coll string, query *Query) (n int, err error) {
-	n, err = c.BuildQuery(coll, query).Count()
-	if err != nil {
-		c.log("QueryCount Fail, Query:", query,
-			", Error:", err)
-	}
-	return n, err
+func (c *Client) Query(coll string, query *Query) *mgo.Query {
+	return c.BuildQuery(coll, query)
 }
 
 func (c *Client) Find(coll string, finder interface{}) *mgo.Query {
