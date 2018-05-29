@@ -84,6 +84,8 @@ func (c *Client) Connect() error {
 
 	//session.SetMode(mgo.Monotonic, true)
 	session.SetMode(mgo.Eventual, true)
+	session.SetSocketTimeout(c.config.SocketTimeout)
+	session.SetSyncTimeout(c.config.SyncTimeout)
 
 	c.conn = session
 	c.db = session.DB(c.config.DBName)
@@ -121,7 +123,7 @@ func (c *Client) Count(coll string) (n int, err error) {
 }
 
 func (c *Client) BuildQuery(coll string, query *Query) *mgo.Query {
-	q := c.Collection(coll).Find(query.finder)
+	q := c.Collection(coll).Find(query.finder).SetMaxTime(c.config.QueryTimeout)
 	if query.selector != nil {
 		q = q.Select(query.selector)
 	}

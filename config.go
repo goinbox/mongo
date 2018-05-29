@@ -7,7 +7,9 @@ import (
 )
 
 const (
-	DEFAULT_QUERY_TIMEOUT = 10 * time.Second
+	DEFAULT_QUERY_TIMEOUT  = 10 * time.Second
+	DEFAULT_SOCKET_TIMEOUT = 10 * time.Second
+	DEFAULT_SYNC_TIMEOUT   = 7 * time.Second
 )
 
 type Config struct {
@@ -19,7 +21,9 @@ type Config struct {
 	Pass   string
 	DBName string
 
-	QueryTimeout time.Duration
+	QueryTimeout  time.Duration
+	SocketTimeout time.Duration
+	SyncTimeout   time.Duration
 }
 
 func NewConfig(host, port, user, pass, dbname string) *Config {
@@ -32,6 +36,8 @@ func NewConfig(host, port, user, pass, dbname string) *Config {
 		Pass:   pass,
 		DBName: dbname,
 
-		QueryTimeout: DEFAULT_QUERY_TIMEOUT,
+		QueryTimeout:  DEFAULT_QUERY_TIMEOUT,
+		SocketTimeout: DEFAULT_SOCKET_TIMEOUT,
+		SyncTimeout:   DEFAULT_SYNC_TIMEOUT,
 	}
 }
