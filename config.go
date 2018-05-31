@@ -15,8 +15,7 @@ const (
 type Config struct {
 	LogLevel int
 
-	Host   string
-	Port   string
+	Hosts   []string
 	User   string
 	Pass   string
 	DBName string
@@ -26,12 +25,11 @@ type Config struct {
 	SyncTimeout   time.Duration
 }
 
-func NewConfig(host, port, user, pass, dbname string) *Config {
+func NewConfig(hosts []string, user, pass, dbname string) *Config {
 	return &Config{
 		LogLevel: golog.LEVEL_INFO,
 
-		Host:   host,
-		Port:   port,
+		Hosts:   hosts,
 		User:   user,
 		Pass:   pass,
 		DBName: dbname,

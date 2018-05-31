@@ -9,6 +9,7 @@ import (
 	"github.com/goinbox/golog"
 
 	"fmt"
+	"strings"
 )
 
 type CmdLogFmtFunc func(cmd string, args ...interface{}) []byte
@@ -75,7 +76,7 @@ func (c *Client) Free() {
 }
 
 func (c *Client) Connect() error {
-	url := "mongodb://" + c.config.User + ":" + c.config.Pass + "@" + c.config.Host + ":" + c.config.Port
+	url := "mongodb://" + c.config.User + ":" + c.config.Pass + "@" + strings.Join(c.config.Hosts, ",")
 
 	session, err := mgo.Dial(url)
 	if err != nil {
