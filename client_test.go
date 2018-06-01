@@ -25,7 +25,7 @@ func getTestClient() *Client {
 	w, _ := golog.NewFileWriter("/tmp/test_mongo.log")
 	logger, _ := golog.NewSimpleLogger(w, golog.LEVEL_INFO, golog.NewSimpleFormater())
 
-	config := NewConfig("localhost", "myport", "myuser", "mypass", "mydb")
+	config := NewConfig([]string{"localhost:myport"}, "myuser", "mypass", "mydb")
 
 	config.LogLevel = golog.LEVEL_DEBUG
 
