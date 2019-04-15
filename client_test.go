@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/globalsign/mgo/bson"
 	"github.com/goinbox/golog"
-	"gopkg.in/mgo.v2/bson"
 
 	"testing"
 )
@@ -22,13 +22,9 @@ const (
 )
 
 func getTestClient() *Client {
-	w, _ := golog.NewFileWriter("/tmp/test_mongo.log")
-	logger, _ := golog.NewSimpleLogger(w, golog.LEVEL_INFO, golog.NewSimpleFormater())
+	logger := golog.NewSimpleLogger(golog.NewConsoleWriter(), golog.NewSimpleFormater())
 
-	config := NewConfig([]string{"localhost:myport"}, "myuser", "mypass", "mydb")
-
-	config.LogLevel = golog.LEVEL_DEBUG
-
+	config := NewConfig([]string{"127.0.0.1:27017"}, "myname", "mypass", "mydb")
 	return NewClient(config, logger)
 }
 
