@@ -94,6 +94,7 @@ func (c *Client) Connect() error {
 		return err
 	}
 
+	session.SetMode(c.config.Mode, true)
 	session.SetSocketTimeout(c.config.SocketTimeout)
 	session.SetSyncTimeout(c.config.SyncTimeout)
 
