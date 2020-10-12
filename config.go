@@ -42,7 +42,7 @@ type Config struct {
 
 func NewConfig(hosts []string, user, pass, dbname string) *Config {
 	return &Config{
-		LogLevel: golog.LEVEL_INFO,
+		LogLevel: golog.LevelInfo,
 
 		Hosts:  hosts,
 		User:   user,
